@@ -18,7 +18,7 @@ A RESTful API server for the Task Management Application. It handles data persis
   * **RESTful Endpoints:** Standardized routes for Todos.
   * **CRUD Operations:** Create, Read, Update, and Delete tasks.
   * **CORS Enabled:** Configured to allow requests from the frontend application.
-  * **Database Integration:** Persists task data securely.
+  * **Database Integration:** Uses Mongoose to connect to MongoDB Atlas.
 
 ## 3\. Tech Stack
 
