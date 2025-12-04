@@ -25,7 +25,7 @@ A RESTful API server for the Task Management Application. It handles data persis
 | Category | Technologies |
 | :--- | :--- |
 | **Server** | Node.js, Express.js |
-| **Database** | MongoDB (or your specific DB) |
+| **Database** | MongoDB |
 | **Deployment** | Render (connected via GitHub) |
 
 -----
