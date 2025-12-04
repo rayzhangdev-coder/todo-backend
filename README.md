@@ -4,7 +4,7 @@
 
 | Item | Status |
 | :--- | :--- |
-| **Frontend App** | [https://todo-frontend-eight-cyan.vercel.app/](https://todo-frontend-eight-cyan.vercel.app/) |
+| **Frontend Code** | https://github.com/rayzhangdev-coder/todo-frontend |
 | **API Live Demo** | https://ray-todo-api.onrender.com/todos |
 
 -----
