@@ -5,7 +5,7 @@
 | Item | Status |
 | :--- | :--- |
 | **Frontend App** | [https://todo-frontend-eight-cyan.vercel.app/](https://todo-frontend-eight-cyan.vercel.app/) |
-| **API Live Demo** | *(Add your Render URL here, e.g., [https://todo-backend.onrender.com](https://www.google.com/search?q=https://todo-backend.onrender.com))* |
+| **API Live Demo** | https://ray-todo-api.onrender.com/todos |
 
 -----
 
