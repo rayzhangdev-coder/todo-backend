@@ -57,9 +57,6 @@ A RESTful API server for the Task Management Application. It handles data persis
     ```bash
     npm run dev
     ```
-
-    The server should now be running at `http://localhost:5000`.
-
 -----
 
 ### 5\. Deploying the Backend on Render
