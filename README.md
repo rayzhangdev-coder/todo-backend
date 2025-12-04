@@ -49,7 +49,6 @@ A RESTful API server for the Task Management Application. It handles data persis
     Create a `.env` file in the root directory and add:
 
     ```env
-    PORT=5000
     MONGODB_URI=your_database_connection_string
     ```
 
