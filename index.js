@@ -32,7 +32,8 @@ const todoSchema = mongoose.Schema({
     //default: false means that if this field is not provided, then it defaults to false
 });
 
-const Todo = mongoose.model('Todo', todoSchema);
+//model name is 'Todo'       HERE
+const Todo = mongoose.model('Todo', todoSchema); //collection name defaults to 'todos'
 
 //GET
 app.get("/todos", async (req, res) => {
