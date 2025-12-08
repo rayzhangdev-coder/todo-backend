@@ -21,7 +21,7 @@ app.use("/todos", express.json()); //Built in body parser (replacement for Bodyp
 //process is the current Node.js runtime (which means the process that is running my code)
 mongoose.connect(process.env.MONGO_URI) //env is a variable in the process
 .then(() => console.log("Connected to MongoDB Atlas!"))
-.catch((err) => console.log("Failed to connect to MongoDB:", err));
+.catch((err) => console.log("Failed to connect to MongoDB: ", err));
 
 // Schema is like a "Blueprint"
 // This tells Mongo what a "Todo" looks like.
