@@ -28,8 +28,9 @@ mongoose.connect(process.env.MONGO_URI) //env is a variable in the process
 const todoSchema = mongoose.Schema({
     task: {type: String, required: true}, //type has to be String, if it can't be converted, it will throw error. 
     //required: true means that this field MUST be provided when creating a new todo
-    completed: {type: Boolean, default: false} //type has to be Boolean, if it can't be converted, it will throw error
+    completed: {type: Boolean, default: false}, //type has to be Boolean, if it can't be converted, it will throw error
     //default: false means that if this field is not provided, then it defaults to false
+    sessionId: { type: String, required: true }
 });
 
 //model name is 'Todo'       HERE
@@ -38,7 +39,22 @@ const Todo = mongoose.model('Todo', todoSchema); //collection name defaults to '
 //GET
 app.get("/todos", async (req, res) => {
     try{
-        const todos = await Todo.find(); //fetches everything from DB
+        // *** NEW ***
+        // We get the sessionId from the query string (e.g., /todos?sessionId=A1B2)
+        // or the request body. Frontend usually sends GET data as query params.
+        const sessionId = req.query.sessionId || req.body.sessionId;
+
+        // *** NEW ***
+        // Security Check: If they didn't send a session ID, we can't give them a list!
+        // We return an empty list or an error. Here we return empty to be safe.
+        if (!sessionId) {
+            return res.json([]);
+        }
+
+        // *** NEW ***
+        // Filter: We ONLY fetch todos that match this specific sessionId.
+        // User A will never see User B's todos because User B has a different ID.
+        const todos = await Todo.find({ sessionId: sessionId });
         const formattedTodos = todos.map(t => ({
         id: t._id,
         task: t.task,
@@ -88,10 +104,19 @@ app.post("/todos", async (req, res) => {
                 error: "task content is required"
             })
         }
+
+        // *** NEW ***
+        // We check if the frontend sent the Session ID.
+        if (!body.sessionId) {
+            return res.status(400).json({ error: "sessionId is required" });
+        }
     
         const newTodo = await Todo.create({
             task: body.task,
-            completed: body.completed
+            completed: body.complete,
+            // *** NEW ***
+            // We save the session ID with the task so we know who owns it.
+            sessionId: body.sessionId
         })
         //we don't directly send newTodo b/c that also has other stuff like  __v: 0,       // version key (used internally by Mongoose)
   // plus lots of Mongoose metadata and methods
@@ -108,47 +133,59 @@ app.post("/todos", async (req, res) => {
      
 // PUT
 app.put("/todos/:id", async (req, res) => {
-    try{
-        //same as id = req.params.id
+    try {
         const { id } = req.params;
-        const { task, completed } = req.body;
-        const taskValid = task && task.trim() !== ""; //null task .trim() will never be called because && operator will already evaluate it as false
-        if(!taskValid){
-            return res.status(400).json({
-                error: "Request must include a 'task' (string)"
-            })
-        }
-        //NOTE: set Todo.findByIdAndUpdate to check if they return null or not
-        const updatedTodo = await Todo.findByIdAndUpdate(
-            id, //id to find in Document
-            { task, completed }, //object to update with
-            { new: true } //return NEW document AFTER update
+        const { task, completed, sessionId } = req.body; 
+
+        // ... (validation checks) ...
+
+        const updatedTodo = await Todo.findOneAndUpdate(
+            { _id: id, sessionId: sessionId }, 
+            { task, completed }, 
+            { new: true } 
         );
-        if(!updatedTodo){
-            res.status(404).send("id not found");
+
+        if (!updatedTodo) {
+            // FIX: Add 'return' here too!
+            return res.status(404).send("id not found");
         }
+        
         res.json({
             id: updatedTodo._id,
             task: updatedTodo.task,
             completed: updatedTodo.completed
-        })
-    }catch(err){
-        res.status(500).send({error: err.message})
+        });
+    } catch (err) {
+        res.status(500).send({ error: err.message });
     }
 })
 
 //DELETE
-app.delete(("/todos/:id"), async (req, res) => {
-    try{
+app.delete("/todos/:id", async (req, res) => {
+    try {
         const { id } = req.params;
-        //NOTE: set Todo.findByIdAndDelete to check if they return null or not
-        const deletedTodo = await Todo.findByIdAndDelete(id);
-        if(!deletedTodo){
-            res.status(404).send("id not found")
+        
+        // FIX 1: Safely check req.body using optional chaining (?) 
+        // or check if it exists first.
+        const sessionId = req.query.sessionId || (req.body && req.body.sessionId);
+
+        if (!sessionId) {
+            return res.status(400).json({ error: "sessionId is required to delete" });
         }
+
+        const deletedTodo = await Todo.findOneAndDelete({ _id: id, sessionId: sessionId });
+
+        if (!deletedTodo) {
+            // FIX 2: Add 'return' here! 
+            // Without this, the code continues and tries to send res.status(204) below.
+            return res.status(404).send("id not found");
+        }
+
         res.status(204).send();
-    }catch(err){
-        res.status(500).send( {error: err.message} );
+    } catch (err) {
+        // This is likely where your current error is being caught
+        console.log(err); // Good to log this so you can see it in your terminal
+        res.status(500).send({ error: err.message });
     }
 });
 
