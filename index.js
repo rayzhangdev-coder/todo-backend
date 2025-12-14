@@ -39,21 +39,15 @@ const Todo = mongoose.model('Todo', todoSchema); //collection name defaults to '
 //GET
 app.get("/todos", async (req, res) => {
     try{
-        // *** NEW ***
-        // We get the sessionId from the query string (e.g., /todos?sessionId=A1B2)
-        // or the request body. Frontend usually sends GET data as query params.
         const sessionId = req.query.sessionId || req.body.sessionId;
 
-        // *** NEW ***
         // Security Check: If they didn't send a session ID, we can't give them a list!
         // We return an empty list or an error. Here we return empty to be safe.
         if (!sessionId) {
             return res.json([]);
         }
 
-        // *** NEW ***
-        // Filter: We ONLY fetch todos that match this specific sessionId.
-        // User A will never see User B's todos because User B has a different ID.
+        // Filter: ONLY fetch todos that match this specific sessionId.
         const todos = await Todo.find({ sessionId: sessionId });
         const formattedTodos = todos.map(t => ({
         id: t._id,
@@ -105,8 +99,7 @@ app.post("/todos", async (req, res) => {
             })
         }
 
-        // *** NEW ***
-        // We check if the frontend sent the Session ID.
+        // check if the frontend sent the Session ID.
         if (!body.sessionId) {
             return res.status(400).json({ error: "sessionId is required" });
         }
@@ -137,8 +130,6 @@ app.put("/todos/:id", async (req, res) => {
         const { id } = req.params;
         const { task, completed, sessionId } = req.body; 
 
-        // ... (validation checks) ...
-
         const updatedTodo = await Todo.findOneAndUpdate(
             { _id: id, sessionId: sessionId }, 
             { task, completed }, 
@@ -146,7 +137,6 @@ app.put("/todos/:id", async (req, res) => {
         );
 
         if (!updatedTodo) {
-            // FIX: Add 'return' here too!
             return res.status(404).send("id not found");
         }
         
@@ -165,8 +155,6 @@ app.delete("/todos/:id", async (req, res) => {
     try {
         const { id } = req.params;
         
-        // FIX 1: Safely check req.body using optional chaining (?) 
-        // or check if it exists first.
         const sessionId = req.query.sessionId || (req.body && req.body.sessionId);
 
         if (!sessionId) {
@@ -176,15 +164,12 @@ app.delete("/todos/:id", async (req, res) => {
         const deletedTodo = await Todo.findOneAndDelete({ _id: id, sessionId: sessionId });
 
         if (!deletedTodo) {
-            // FIX 2: Add 'return' here! 
-            // Without this, the code continues and tries to send res.status(204) below.
             return res.status(404).send("id not found");
         }
 
         res.status(204).send();
     } catch (err) {
-        // This is likely where your current error is being caught
-        console.log(err); // Good to log this so you can see it in your terminal
+        console.log(err); 
         res.status(500).send({ error: err.message });
     }
 });
