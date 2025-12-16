@@ -106,7 +106,7 @@ app.post("/todos", async (req, res) => {
     
         const newTodo = await Todo.create({
             task: body.task,
-            completed: body.complete,
+            completed: body.completed,
             // *** NEW ***
             // We save the session ID with the task so we know who owns it.
             sessionId: body.sessionId
