@@ -15,7 +15,9 @@ const mongoose = require('mongoose');
 //Middlewares
 //app.use is basically if a path was used -> run function
 //if no path provided, then always runs
-app.use(cors());
+app.use(cors({
+    origin: 'https://todo-frontend-eight-cyan.vercel.app/'
+}));
 app.use("/todos", express.json()); //Built in body parser (replacement for Bodyparser)
 
 //process is the current Node.js runtime (which means the process that is running my code)
